@@ -1,13 +1,16 @@
 var config = {
     type: Phaser.AUTO,
-    width: 1152,
-    height: 360,
+    width: 800,
+    height: 600,
+    backgroundColor: "#FFFFAC",
+    pixelArt: true,
     physics: {
-        default: 'matter',
-        matter: {
-            debug: true
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 1000 },
+            debug: false
         }
-    },
+    },  
     scene: {
         preload: preload,
         create: create,
@@ -18,25 +21,71 @@ var config = {
 var game = new Phaser.Game(config);
 
 function preload(){
-    this.load.spritesheet('player', 'assets/dude.png', {frameWidth: 32, frameHeight: 48})
     this.load.image('tiles', 'assets/maps/sheet.png')
     this.load.tilemapTiledJSON('tilemap', 'assets/maps/map.tmj')
+
+    this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
 }
 
-var player;
 
 function create(){
-    
     const map = this.make.tilemap({key: 'tilemap'})
     const tileset = map.addTilesetImage('tiles_packed', 'tiles');
+    const platform = map.createLayer('platform', tileset, 0, 170);
+    
+    platform.setCollisionByExclusion(-1, true);
 
-    const platform = map.createLayer('platform', tileset);
+    player = this.physics.add.sprite(180, 500, 'dude').setScale(1);
 
-    platform.setCollisionByProperty({collides: true})
+    player.setCollideWorldBounds(true);
 
-    this.matter.world.convertTilemapLayer(platform);
+    this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+    });
 
+    this.anims.create({
+        key: 'turn',
+        frames: [ { key: 'dude', frame: 4 } ],
+        frameRate: 20
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    this.physics.add.collider   (player, platform);
+
+    this.cameras.main
+    .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
+    .startFollow(player);
 }
 
 function update(){
+    cursors = this.input.keyboard.createCursorKeys();
+
+    const speed = 100;
+
+    if (cursors.left.isDown){
+        player.setVelocityX(-speed);
+        player.anims.play('left', true);
+    }
+
+    else if (cursors.right.isDown){
+        player.setVelocityX(speed);
+        player.anims.play('right', true);
+    }
+    else{
+        player.setVelocityX(0);
+        player.anims.play('turn');
+    }
+
+    if (cursors.up.isDown && player.body.onFloor()){
+        player.setVelocityY(-350);
+    }
 }
