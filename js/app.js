@@ -21,29 +21,42 @@ var config = {
 var game = new Phaser.Game(config);
 
 function preload(){
-    this.load.image('tiles', 'assets/maps/sheet.png')
-    this.load.tilemapTiledJSON('tilemap', 'assets/maps/map.tmj')
+    this.load.image('tiles', './assets/maps/sheet.png')
+    this.load.tilemapTiledJSON('tilemap', './assets/maps/map.tmj')
 
-    this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
+    this.load.image('coin', './assets/sprites/coin.png');
+    this.load.spritesheet('dude', './assets/dude.png', {frameWidth: 32, frameHeight: 48});
 }
 
+var player;
+var cursors;
 
 function create(){
     const map = this.make.tilemap({key: 'tilemap'})
     const tileset = map.addTilesetImage('tiles_packed', 'tiles');
-    const platform = map.createLayer('platform', tileset, 0, 170);
-    const water = map.createLayer('water', tileset, 0, 170);
+    const platform = map.createLayer('platform', tileset, 0, 60);
+    const water = map.createLayer('water', tileset, 0, 60);
 
-    map.createLayer('backdrops-extra', tileset, 0, 170)
-    map.createLayer('backdrops', tileset, 0, 170)
-    map.createLayer('extra details', tileset, 0, 170)
+    map.createLayer('backdrops-extra', tileset, 0, 60)
+    map.createLayer('backdrops', tileset, 0, 60)
+    map.createLayer('extra details', tileset, 0, 60)
+    const CoinLayer = map.getObjectLayer('coins')['objects'];
+
+    coins = this.physics.add.staticGroup()
+    CoinLayer.forEach(object => {
+    let obj = coins.create(object.x, object.y, "coin"); 
+       obj.setScale(object.width/16, object.height/16); 
+       obj.setOrigin(0); 
+       obj.body.width = object.width; 
+       obj.body.height = object.height;}
+    )
 
     platform.setCollisionByExclusion(-1, true);
     water.setCollisionByExclusion(-1, true);
 
-    player = this.physics.add.sprite(180, 500, 'dude').setScale(1);
+    player = this.physics.add.sprite(200, 350, 'dude');
 
-    player.setCollideWorldBounds(true);
+    player.setCollideWorldBounds(false);
 
     this.anims.create({
         key: 'left',
