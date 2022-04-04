@@ -32,8 +32,14 @@ function create(){
     const map = this.make.tilemap({key: 'tilemap'})
     const tileset = map.addTilesetImage('tiles_packed', 'tiles');
     const platform = map.createLayer('platform', tileset, 0, 170);
-    
+    const water = map.createLayer('water', tileset, 0, 170);
+
+    map.createLayer('backdrops-extra', tileset, 0, 170)
+    map.createLayer('backdrops', tileset, 0, 170)
+    map.createLayer('extra details', tileset, 0, 170)
+
     platform.setCollisionByExclusion(-1, true);
+    water.setCollisionByExclusion(-1, true);
 
     player = this.physics.add.sprite(180, 500, 'dude').setScale(1);
 
@@ -59,7 +65,8 @@ function create(){
         repeat: -1
     });
 
-    this.physics.add.collider   (player, platform);
+    this.physics.add.collider(player, platform);
+    this.physics.add.collider(player, water);
 
     this.cameras.main
     .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
@@ -69,7 +76,7 @@ function create(){
 function update(){
     cursors = this.input.keyboard.createCursorKeys();
 
-    const speed = 100;
+    const speed = 150;
 
     if (cursors.left.isDown){
         player.setVelocityX(-speed);
@@ -80,6 +87,7 @@ function update(){
         player.setVelocityX(speed);
         player.anims.play('right', true);
     }
+
     else{
         player.setVelocityX(0);
         player.anims.play('turn');
