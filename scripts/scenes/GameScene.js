@@ -31,13 +31,14 @@ export default class GameScene extends Phaser.Scene {
         this.map = this.make.tilemap({key: 'tilemap'})
         this.tileset = this.map.addTilesetImage('tiles_packed', 'tiles');
         this.platform = this.map.createLayer('platform', this.tileset, 0, 60);
+        this.flag = this.map.createLayer('flag', this.tileset, 0, 60);
         this.water = this.map.createLayer('water', this.tileset, 0, 60);
     
         this.map.createLayer('backdrops-extra', this.tileset, 0, 60)
         this.map.createLayer('backdrops', this.tileset, 0, 60)
         this.map.createLayer('extra details', this.tileset, 0, 60)
     
-    
+        this.flag.setCollisionByExclusion(-1, true);
         this.platform.setCollisionByExclusion(-1, true);
         this.water.setCollisionByExclusion(-1, true);
     
@@ -65,6 +66,7 @@ export default class GameScene extends Phaser.Scene {
             obj.body.height = object.height;
         })
         
+        // Push Mobs
         this.pushMobs = this.map.getObjectLayer('push mobs')['objects'];
         
         this.pMobs = this.physics.add.group();
@@ -117,13 +119,19 @@ export default class GameScene extends Phaser.Scene {
     
         // Physics and Camera
         this.physics.add.collider(this.player, this.platform);
-        this.physics.add.collider(this.player, this.water);
         this.physics.add.collider(this.player, this.pMobs);
         this.physics.add.collider(this.pMobs, this.platform);
         this.physics.add.collider(this.gEnemies, this.platform);
-        this.physics.add.collider(this.pMobs, this.gEnemies, this.hitBlock, null, this);
-        this.physics.add.collider(this.player, this.gEnemies, this.hitMob, null, this);
-        this.physics.add.overlap(this.player, this.coins, this.collectCoins, null, this)
+
+        this.physics.add.overlap(this.player, this.coins, this.collectCoins, null, this);
+        this.physics.add.collider(this.pMobs, this.gEnemies, this.hitMob, null, this);
+
+        // Lose Conditions - If player collides with red enemies/water
+        this.physics.add.collider(this.player, this.water, this.gameOver, null, this);
+        this.physics.add.collider(this.player, this.gEnemies, this.gameOver, null, this);
+        
+        // Win Conditions - If player collides with the flag at the end of the map
+        this.physics.add.collider(this.player, this.flag, this.clear, null, this);
     
         this.cameras.main
         .setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels)
@@ -175,16 +183,7 @@ export default class GameScene extends Phaser.Scene {
         return false; 
     }
     
-    hitMob (player, gEnemies)
-    {
-        this.physics.pause();
-    
-        player.setTint(0xff0000);
-    
-        player.anims.play('turn');
-    }
-    
-    hitBlock (pMobs, gEnemies){
+    hitMob (pMobs, gEnemies){
         
         pMobs.setVelocityX(100)
         gEnemies.destroy(gEnemies.x, gEnemies.y)
@@ -192,6 +191,16 @@ export default class GameScene extends Phaser.Scene {
         this.scoreText.setText(`Score: ${this.score}`);
         return false;
     
+    }
+
+    // Win-Lose Fucntions
+    
+    clear(){
+        this.scene.start("StageClearScene")
+    }
+
+    gameOver(){
+        this.scene.start("GameOverScene")
     }
 
 }
