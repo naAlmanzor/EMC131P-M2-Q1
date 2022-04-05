@@ -2,7 +2,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 492,
-    backgroundColor: "#FFFFAC",
+    backgroundColor: "#D8F2FF",
     pixelArt: true,
     physics: {
         default: 'arcade',
@@ -34,6 +34,8 @@ var player;
 var coins;
 var cursors;
 var coinsScore = 0;
+var coinCounter = 0;
+var score = 0;
 var pMobs;
 var gEnemies;
 
@@ -121,11 +123,17 @@ function create(){
     });
 
     // Texts
-    coinText = this.add.text(100, 10, `Coins: ${coinsScore}x`, {
+    coinText = this.add.text(180, 10, `Coins: ${coinsScore}x`, {
         fontSize: '20px',
         fill: '#000000'
       });
     coinText.setScrollFactor(0);
+
+    scoreText = this.add.text(15, 10, `Score: ${score}`,{
+        fontSize: '20px',
+        fill: '#000000'
+    });
+    scoreText.setScrollFactor(0);
     
 
     // Physics and Camera
@@ -160,7 +168,7 @@ function update(){
     else{
         player.setVelocityX(0);
         player.anims.play('turn');
-    }
+    }   
 
     if (cursors.up.isDown && player.body.onFloor()){
         player.setVelocityY(-380);
@@ -172,6 +180,20 @@ function collectCoins(player, coins){
     coins.destroy(coins.x, coins.y)
     coinsScore ++;
     coinText.setText(`Coins: ${coinsScore}x`);
+    
+    coinCounter += 1
+
+    if(coinCounter==10){
+        score+=500;
+        scoreText.setText(`Score: ${score}`);
+        coinCounter=0;
+    }
+
+    if(coinsScore==21){
+        score+=1000
+        scoreText.setText(`Score: ${score}`);
+    }
+
     return false; 
 }
 
@@ -187,5 +209,7 @@ function hitMob (player, gEnemies)
 function hitBlock (pMobs, gEnemies){
     pMobs.setVelocityX(100)
     gEnemies.destroy(gEnemies.x, gEnemies.y)
+    score+=100;
+    scoreText.setText(`Score: ${score}`);
     return false;
 }
