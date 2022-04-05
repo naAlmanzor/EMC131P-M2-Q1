@@ -1,7 +1,7 @@
 var config = {
     type: Phaser.AUTO,
     width: 800,
-    height: 600,
+    height: 492,
     backgroundColor: "#FFFFAC",
     pixelArt: true,
     physics: {
@@ -29,9 +29,13 @@ function preload(){
 }
 
 var player;
+var coins;
 var cursors;
+var coinsScore = 0;
 
 function create(){
+
+    // Map
     const map = this.make.tilemap({key: 'tilemap'})
     const tileset = map.addTilesetImage('tiles_packed', 'tiles');
     const platform = map.createLayer('platform', tileset, 0, 60);
@@ -42,6 +46,10 @@ function create(){
     map.createLayer('extra details', tileset, 0, 60)
     const CoinLayer = map.getObjectLayer('coins')['objects'];
 
+    platform.setCollisionByExclusion(-1, true);
+    water.setCollisionByExclusion(-1, true);
+
+    // Coins
     coins = this.physics.add.staticGroup()
     CoinLayer.forEach(object => {
     let obj = coins.create(object.x, object.y, "coin"); 
@@ -51,9 +59,7 @@ function create(){
        obj.body.height = object.height;}
     )
 
-    platform.setCollisionByExclusion(-1, true);
-    water.setCollisionByExclusion(-1, true);
-
+    // Player
     player = this.physics.add.sprite(200, 350, 'dude');
 
     player.setCollideWorldBounds(false);
@@ -78,8 +84,18 @@ function create(){
         repeat: -1
     });
 
+    // Texts
+    coinText = this.add.text(100, 10, `Coins: ${coinsScore}x`, {
+        fontSize: '20px',
+        fill: '#000000'
+      });
+    coinText.setScrollFactor(0);
+    
+
+    // Physics and Camera
     this.physics.add.collider(player, platform);
     this.physics.add.collider(player, water);
+    this.physics.add.overlap(player, coins, collectCoins, null, this)
 
     this.cameras.main
     .setBounds(0, 0, map.widthInPixels, map.heightInPixels)
@@ -109,4 +125,11 @@ function update(){
     if (cursors.up.isDown && player.body.onFloor()){
         player.setVelocityY(-350);
     }
+}
+
+function collectCoins(player, coins){
+    coins.destroy(coins.x, coins.y)
+    coinsScore ++;
+    coinText.setText(`Coins: ${coinsScore}x`);
+    return false; 
 }
