@@ -4,6 +4,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init(){
+        this.lives = 3;
         this.player;
         this.coins;
         this.cursors;
@@ -15,12 +16,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload(){
-        this.load.image('tiles', './assets/maps/sheet.png')
-        this.load.tilemapTiledJSON('tilemap', './assets/maps/map.tmj')
-    
+        this.load.image('tiles', './assets/maps/sheet.png');
+        this.load.tilemapTiledJSON('tilemap', './assets/maps/map.tmj');
+        
+        this.load.image('heart', './assets/icons/heart.png');
+
         this.load.image('coin', './assets/images/coin.png');
-        this.load.image('push-mobs', './assets/images/push-mobs.png')
-        this.load.image('ground-enemies', './assets/images/ground-enemies.png')
+        this.load.image('push-mobs', './assets/images/push-mobs.png');
+        this.load.image('ground-enemies', './assets/images/ground-enemies.png');
         this.load.spritesheet('dude', './assets/images/dude.png', {frameWidth: 32, frameHeight: 48});
     }
 
@@ -28,7 +31,7 @@ export default class GameScene extends Phaser.Scene {
     create(){
     
         // Map
-        this.map = this.make.tilemap({key: 'tilemap'})
+        this.map = this.make.tilemap({key: 'tilemap'});
         this.tileset = this.map.addTilesetImage('tiles_packed', 'tiles');
         this.platform = this.map.createLayer('platform', this.tileset, 0, 60);
         this.flag = this.map.createLayer('flag', this.tileset, 0, 60);
@@ -61,7 +64,8 @@ export default class GameScene extends Phaser.Scene {
         this.enemyGround.forEach(object => {
             let obj = this.gEnemies.create(object.x, object.y, "ground-enemies");
             obj.setScale(object.width/16, object.height/16); 
-            obj.setOrigin(0); 
+            obj.setOrigin(0);
+            obj.setImmovable([true]); 
             obj.body.width = object.width; 
             obj.body.height = object.height;
         })
@@ -102,7 +106,14 @@ export default class GameScene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1
         });
-    
+
+        this.player.invulnerable = false;
+
+        //Hearts
+        this.heart1 = this.add.sprite(30, 50, 'heart').setScrollFactor(0);
+        this.heart2 = this.add.sprite(60, 50, 'heart').setScrollFactor(0);
+        this.heart3 = this.add.sprite(90, 50, 'heart').setScrollFactor(0);
+
         // Texts
         this.coinText = this.add.text(180, 10, `Coins: ${this.coinsScore}x`, {
             fontSize: '20px',
@@ -115,7 +126,6 @@ export default class GameScene extends Phaser.Scene {
             fill: '#000000'
         });
         this.scoreText.setScrollFactor(0);
-        
     
         // Physics and Camera
         this.physics.add.collider(this.player, this.platform);
@@ -124,11 +134,12 @@ export default class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.gEnemies, this.platform);
 
         this.physics.add.overlap(this.player, this.coins, this.collectCoins, null, this);
+        this.physics.add.collider(this.player, this.pMobs, this.upMob, null, this);
         this.physics.add.collider(this.pMobs, this.gEnemies, this.hitMob, null, this);
 
         // Lose Conditions - If player collides with red enemies/water
         this.physics.add.collider(this.player, this.water, this.gameOver, null, this);
-        this.physics.add.collider(this.player, this.gEnemies, this.gameOver, null, this);
+        this.physics.add.collider(this.player, this.gEnemies, this.hitEnemy, null, this);
         
         // Win Conditions - If player collides with the flag at the end of the map
         this.physics.add.collider(this.player, this.flag, this.clear, null, this);
@@ -141,7 +152,7 @@ export default class GameScene extends Phaser.Scene {
     update(){
         this.cursors = this.input.keyboard.createCursorKeys();
         this.speed = 150;
-    
+
         if (this.cursors.left.isDown){
             this.player.setVelocityX(-this.speed);
             this.player.anims.play('left', true);
@@ -157,7 +168,7 @@ export default class GameScene extends Phaser.Scene {
             this.player.anims.play('turn');
         }   
     
-        if (this.cursors.up.isDown && (this.player.body.touching.down || this.player.body.onFloor())){
+        if (this.cursors.up.isDown && this.player.body.onFloor()){
             this.player.setVelocityY(-380);
         }
     }
@@ -182,19 +193,104 @@ export default class GameScene extends Phaser.Scene {
     
         return false; 
     }
+
+    hitEnemy(player, gEnemies){
+
+        player.setVelocityY(-400)
+
+        if(gEnemies.body.touching.up && !gEnemies.hit){
+            gEnemies.disableBody(false,false);
+            this.tweens.add({
+                targets: gEnemies,
+                alpha: 0.3,
+                scaleX: 1.5,
+                scaleY: 1.5,
+                ease: 'Linear',
+                duration: 200,
+                onComplete: function() {
+                    gEnemies.destroy(gEnemies.x, gEnemies.y);
+                },
+            });
+
+            this.score+=50
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
+
+        else{
+            if (player.invulnerable == false){
+                this.lives-=1
+                player.setTint(0xff0000);
+                player.invulnerable = true;
+                
+                if (this.lives == 2){
+                    this.tweens.add({
+                        targets: this.heart3,
+                        alpha: 0,
+                        scaleX: 0,
+                        scaleY: 0,
+                        ease: 'Linear',
+                        duration: 200
+                    });
+                }
+
+                else if(this.lives == 1){
+                    this.tweens.add({
+                        targets: this.heart2,
+                        alpha: 0,
+                        scaleX: 0,
+                        scaleY: 0,
+                        ease: 'Linear',
+                        duration: 200
+                    });
+                }
+            }
+    
+            // I-frame
+            this.time.addEvent({
+                delay: 1000,
+                callback: ()=>{
+                    player.invulnerable = false;
+                    player.clearTint();
+                }
+            })
+    
+            if(this.lives==0){
+                this.scene.start("GameOverScene")
+            }
+    
+            console.log(this.lives)
+        }
+        
+    }
     
     hitMob (pMobs, gEnemies){
         
         pMobs.setVelocityX(100)
-        gEnemies.destroy(gEnemies.x, gEnemies.y)
+
+        gEnemies.disableBody(false,false);
+        this.tweens.add({
+            targets: gEnemies,
+            alpha: 0.3,
+            scaleX: 1.5,
+            scaleY: 1.5,
+            ease: 'Linear',
+            duration: 200,
+            onComplete: function() {
+                gEnemies.destroy(gEnemies.x, gEnemies.y);
+            },
+        });
         this.score+=100;
         this.scoreText.setText(`Score: ${this.score}`);
         return false;
     
     }
+    
+    // when player is up the pMob
+    upMob (player, pMobs){
+        player.setVelocityY(-400)
+    }
 
     // Win-Lose Fucntions
-    
     clear(){
         this.scene.start("StageClearScene")
     }
