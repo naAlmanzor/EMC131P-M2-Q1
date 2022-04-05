@@ -439,9 +439,115 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":10,
+         "name":"ground enemies",
+         "objects":[
+                {
+                 "gid":146,
+                 "height":18,
+                 "id":146,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":630,
+                 "y":396
+                }, 
+                {
+                 "gid":146,
+                 "height":18,
+                 "id":148,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":1026,
+                 "y":342
+                }, 
+                {
+                 "gid":146,
+                 "height":18,
+                 "id":149,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":1206,
+                 "y":342
+                }, 
+                {
+                 "gid":146,
+                 "height":18,
+                 "id":150,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":1404,
+                 "y":342
+                }, 
+                {
+                 "gid":146,
+                 "height":18,
+                 "id":152,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":1872,
+                 "y":342
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":14,
+         "name":"push mobs",
+         "objects":[
+                {
+                 "gid":30,
+                 "height":18,
+                 "id":154,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":450,
+                 "y":342
+                }, 
+                {
+                 "gid":27,
+                 "height":18,
+                 "id":166,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":18,
+                 "x":1368,
+                 "y":342
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":10,
- "nextobjectid":127,
+ "nextlayerid":16,
+ "nextobjectid":167,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.8.4",
@@ -2080,6 +2186,19 @@
                          "value":false
                         }]
                 }],
+         "tilewidth":18
+        }, 
+        {
+         "columns":12,
+         "firstgid":181,
+         "image":"..\/..\/..\/..\/..\/..\/Downloads\/kenney_pixelplatformer\/Tilemap\/characters.png",
+         "imageheight":76,
+         "imagewidth":232,
+         "margin":0,
+         "name":"characters",
+         "spacing":0,
+         "tilecount":48,
+         "tileheight":18,
          "tilewidth":18
         }],
  "tilewidth":18,

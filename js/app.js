@@ -25,6 +25,8 @@ function preload(){
     this.load.tilemapTiledJSON('tilemap', './assets/maps/map.tmj')
 
     this.load.image('coin', './assets/sprites/coin.png');
+    this.load.image('push-mobs', './assets/push-mobs.png')
+    this.load.image('ground-enemies', './assets/ground-enemies.png')
     this.load.spritesheet('dude', './assets/dude.png', {frameWidth: 32, frameHeight: 48});
 }
 
@@ -32,6 +34,8 @@ var player;
 var coins;
 var cursors;
 var coinsScore = 0;
+var pMobs;
+var gEnemies;
 
 function create(){
 
@@ -44,20 +48,52 @@ function create(){
     map.createLayer('backdrops-extra', tileset, 0, 60)
     map.createLayer('backdrops', tileset, 0, 60)
     map.createLayer('extra details', tileset, 0, 60)
-    const CoinLayer = map.getObjectLayer('coins')['objects'];
+
 
     platform.setCollisionByExclusion(-1, true);
     water.setCollisionByExclusion(-1, true);
 
     // Coins
+    const CoinLayer = map.getObjectLayer('coins')['objects'];
+    
     coins = this.physics.add.staticGroup()
     CoinLayer.forEach(object => {
-    let obj = coins.create(object.x, object.y, "coin"); 
-       obj.setScale(object.width/16, object.height/16); 
-       obj.setOrigin(0); 
-       obj.body.width = object.width; 
-       obj.body.height = object.height;}
-    )
+        let obj = coins.create(object.x, object.y, "coin"); 
+        obj.setScale(object.width/18, object.height/18); 
+        obj.setOrigin(0.5, 0.5); 
+        obj.body.width = object.width; 
+        obj.body.height = object.height;
+    })
+
+    // Enemies
+    const enemyGround = map.getObjectLayer('ground enemies')['objects'];
+
+    gEnemies = this.physics.add.group();
+    enemyGround.forEach(object => {
+        let obj = gEnemies.create(object.x, object.y, "ground-enemies");
+        obj.setScale(object.width/16, object.height/16); 
+        obj.setOrigin(0); 
+        obj.body.width = object.width; 
+        obj.body.height = object.height;
+    })
+
+    this.anims.create({
+        key: 'idle',
+        frames: [ { key: 'ground-enemies', frame: 1 } ],
+        frameRate: 10,
+        repeat: -1
+    });
+    
+    const pushMobs = map.getObjectLayer('push mobs')['objects'];
+    
+    pMobs = this.physics.add.group();
+    pushMobs.forEach(object => {
+        let obj = pMobs.create(object.x, object.y, "push-mobs");
+        obj.setScale(object.width/16, object.height/16); 
+        obj.setOrigin(0); 
+        obj.body.width = object.width; 
+        obj.body.height = object.height;
+    })
 
     // Player
     player = this.physics.add.sprite(200, 350, 'dude');
@@ -95,6 +131,11 @@ function create(){
     // Physics and Camera
     this.physics.add.collider(player, platform);
     this.physics.add.collider(player, water);
+    this.physics.add.collider(player, pMobs);
+    this.physics.add.collider(pMobs, platform);
+    this.physics.add.collider(gEnemies, platform);
+    this.physics.add.collider(pMobs, gEnemies, hitBlock, null, this);
+    this.physics.add.collider(player, gEnemies, hitMob, null, this);
     this.physics.add.overlap(player, coins, collectCoins, null, this)
 
     this.cameras.main
@@ -104,7 +145,6 @@ function create(){
 
 function update(){
     cursors = this.input.keyboard.createCursorKeys();
-
     const speed = 150;
 
     if (cursors.left.isDown){
@@ -123,8 +163,9 @@ function update(){
     }
 
     if (cursors.up.isDown && player.body.onFloor()){
-        player.setVelocityY(-350);
+        player.setVelocityY(-380);
     }
+    
 }
 
 function collectCoins(player, coins){
@@ -132,4 +173,19 @@ function collectCoins(player, coins){
     coinsScore ++;
     coinText.setText(`Coins: ${coinsScore}x`);
     return false; 
+}
+
+function hitMob (player, gEnemies)
+{
+    this.physics.pause();
+
+    player.setTint(0xff0000);
+
+    player.anims.play('turn');
+}
+
+function hitBlock (pMobs, gEnemies){
+    pMobs.setVelocityX(100)
+    gEnemies.destroy(gEnemies.x, gEnemies.y)
+    return false;
 }
