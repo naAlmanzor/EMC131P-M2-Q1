@@ -216,49 +216,45 @@ export default class GameScene extends Phaser.Scene {
             this.scoreText.setText(`Score: ${this.score}`);
         }
 
-        else{
-            if (player.invulnerable == false){
+        if (player.invulnerable == false){
                 this.lives-=1
                 player.setTint(0xff0000);
                 player.invulnerable = true;
                 
-                if (this.lives == 2){
-                    this.tweens.add({
-                        targets: this.heart3,
-                        alpha: 0,
-                        scaleX: 0,
-                        scaleY: 0,
-                        ease: 'Linear',
-                        duration: 200
-                    });
-                }
-
-                else if(this.lives == 1){
-                    this.tweens.add({
-                        targets: this.heart2,
-                        alpha: 0,
-                        scaleX: 0,
-                        scaleY: 0,
-                        ease: 'Linear',
-                        duration: 200
-                    });
-                }
+            if (this.lives == 2){
+                this.tweens.add({
+                    targets: this.heart3,
+                    alpha: 0,
+                    scaleX: 0,
+                    scaleY: 0,
+                    ease: 'Linear',
+                    duration: 200
+                });
             }
-    
-            // I-frame
-            this.time.addEvent({
-                delay: 1000,
-                callback: ()=>{
-                    player.invulnerable = false;
-                    player.clearTint();
-                }
-            })
-    
-            if(this.lives==0){
-                this.scene.start("GameOverScene")
+
+            else if(this.lives == 1){
+                this.tweens.add({
+                    targets: this.heart2,
+                    alpha: 0,
+                    scaleX: 0,
+                    scaleY: 0,
+                    ease: 'Linear',
+                    duration: 200
+                });
             }
         }
-        
+    
+            // remove I-frame
+            this.time.delayedCall(1000, this.removeIFrame, [], this);
+    
+            if(this.lives==0){
+            this.scene.start("GameOverScene")
+        }
+    }
+
+    removeIFrame(){
+        this.player.clearTint()
+        this.player.invulnerable = false;
     }
     
     hitMob (pMobs, gEnemies){
