@@ -176,16 +176,16 @@ export default class GameScene extends Phaser.Scene {
     collectCoins(player, coins){
         coins.destroy(coins.x, coins.y)
         this.coinsScore ++;
+        this.coinCounter++;
+
         this.coinText.setText(`Coins: ${this.coinsScore}x`);
         
-        this.coinCounter += 1
-    
-        if(this.coinCounter==10){
-            this.score+=500;
+        if(this.coinCounter==5){
+            this.score+=200
             this.scoreText.setText(`Score: ${this.score}`);
-            this.coinCounter=0;
+            this.coinCounter = 0;
         }
-    
+
         if(this.coinsScore==21){
             this.score+=1000
             this.scoreText.setText(`Score: ${this.score}`);
@@ -212,7 +212,7 @@ export default class GameScene extends Phaser.Scene {
                 },
             });
 
-            this.score+=50
+            this.score+=100
             this.scoreText.setText(`Score: ${this.score}`);
         }
 
@@ -257,8 +257,6 @@ export default class GameScene extends Phaser.Scene {
             if(this.lives==0){
                 this.scene.start("GameOverScene")
             }
-    
-            console.log(this.lives)
         }
         
     }
