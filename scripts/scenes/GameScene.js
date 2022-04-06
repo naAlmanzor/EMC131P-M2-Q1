@@ -216,39 +216,41 @@ export default class GameScene extends Phaser.Scene {
             this.scoreText.setText(`Score: ${this.score}`);
         }
 
-        if (player.invulnerable == false){
+        else{
+            if (player.invulnerable == false){
                 this.lives-=1
                 player.setTint(0xff0000);
                 player.invulnerable = true;
                 
-            if (this.lives == 2){
-                this.tweens.add({
-                    targets: this.heart3,
-                    alpha: 0,
-                    scaleX: 0,
-                    scaleY: 0,
-                    ease: 'Linear',
-                    duration: 200
-                });
-            }
+                if (this.lives == 2){
+                    this.tweens.add({
+                        targets: this.heart3,
+                        alpha: 0,
+                        scaleX: 0,
+                        scaleY: 0,
+                        ease: 'Linear',
+                        duration: 200
+                    });
+                }
 
-            else if(this.lives == 1){
-                this.tweens.add({
-                    targets: this.heart2,
-                    alpha: 0,
-                    scaleX: 0,
-                    scaleY: 0,
-                    ease: 'Linear',
-                    duration: 200
-                });
+                else if(this.lives == 1){
+                    this.tweens.add({
+                        targets: this.heart2,
+                        alpha: 0,
+                        scaleX: 0,
+                        scaleY: 0,
+                        ease: 'Linear',
+                        duration: 200
+                    });
+                }
             }
-        }
     
             // remove I-frame
             this.time.delayedCall(1000, this.removeIFrame, [], this);
     
             if(this.lives==0){
             this.scene.start("GameOverScene")
+            }
         }
     }
 
@@ -274,9 +276,7 @@ export default class GameScene extends Phaser.Scene {
             },
         });
         this.score+=100;
-        this.scoreText.setText(`Score: ${this.score}`);
-        return false;
-    
+        this.scoreText.setText(`Score: ${this.score}`);    
     }
     
     // when player is up the pMob

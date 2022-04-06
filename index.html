@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8" />
     <title>Side-Scroller</title>
-    <script src="scripts/phaser.min.js"></script>
-    <script type="module" src="scripts/main.js"></script>
     <style type="text/css">
         body {
-            margin: 0;
+            display: grid;
+            height: 50vh;
+            justify-items: center;
+            background-color: black;
         }
+
+        #game{
+            align-self: center;
+            height: 50px;
+        }
+
     </style>
 </head>
 <body>
-    
+    <div id="game">
+        <script src="scripts/phaser.min.js"></script>
+        <script type="module" src="scripts/main.js"></script>
+    </div>
 </body>
 </html>
